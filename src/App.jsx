@@ -5,7 +5,7 @@ import {
   DrawingUtils,
 } from "@mediapipe/tasks-vision";
 import PoseDisplay from "./PoseDisplay";
-import NameInput from "./components/nameInput";
+import NameInput from "./components/NameInput";
 import { processReward } from "./services/paymanService";
 import "./styles/RewardButton.css";
 import "./App.css";
