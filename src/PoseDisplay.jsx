@@ -31,7 +31,7 @@ const PoseDisplay = ({
   return (
     <div className="container">
       <div className="header">
-        <h1 className="title">Yoga Pose Challenge</h1>
+        <h1 className="title">FlexPlex</h1>
         <p style={{ margin: 0, fontSize: "1.2rem" }}>
           {userName ? `Welcome, ${userName}! ` : ""}
           Master the poses, level up your practice

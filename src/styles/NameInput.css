@@ -5,71 +5,93 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 20px;
 }
 
 .name-input-modal {
-  background: white;
-  padding: 30px;
-  border-radius: 15px;
-  width: 90%;
-  max-width: 500px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 40px 30px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 480px;
   text-align: center;
-  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
-  animation: fadeIn 0.3s ease-out;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.4s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .name-input-modal h2 {
-  margin-top: 0;
-  color: #4f46e5;
-  font-size: 1.8rem;
+  margin: 0 0 15px 0;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 2.2rem;
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
 }
 
 .name-input-modal p {
   color: #6b7280;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+  line-height: 1.5;
 }
 
 .name-input {
   width: 100%;
-  padding: 12px 15px;
+  padding: 15px 20px;
   border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 1rem;
-  margin-bottom: 15px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  background-color: #ffffff;
 }
 
 .name-input:focus {
-  border-color: #4f46e5;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  transform: translateY(-1px);
+}
+
+.name-input::placeholder {
+  color: #9ca3af;
 }
 
 .error-message {
   color: #ef4444;
-  margin: 5px 0 15px;
+  margin: 0 0 20px 0;
   font-size: 0.9rem;
+  text-align: left;
+  padding-left: 5px;
 }
 
 .start-button {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: white;
   border: none;
-  padding: 12px 25px;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: 15px 30px;
+  border-radius: 12px;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.2s;
+  transition: all 0.3s ease;
   width: 100%;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  font-family: "Poppins", sans-serif;
 }
 
 .start-button:hover {
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
   transform: translateY(-2px);
 }
 
@@ -77,13 +99,50 @@
   transform: translateY(0);
 }
 
+.start-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .name-input-overlay {
+    padding: 15px;
+  }
+  
+  .name-input-modal {
+    padding: 30px 20px;
+    max-width: 100%;
+  }
+  
+  .name-input-modal h2 {
+    font-size: 1.8rem;
+  }
+  
+  .name-input-modal p {
+    font-size: 1rem;
+    margin-bottom: 25px;
+  }
+  
+  .name-input {
+    padding: 12px 15px;
+    font-size: 1rem;
+  }
+  
+  .start-button {
+    padding: 12px 25px;
+    font-size: 1rem;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-30px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
