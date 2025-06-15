@@ -1,12 +1,107 @@
-# React + Vite
+# FlexPlex
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**The future of fitness meets rewards - Get paid for perfecting your poses!**
+***Powered by PaymanAI***
+> **FlexPlex** is an innovative web application that combines AI-powered pose detection with rewards. Master yoga poses, earn rewards, and gamify your wellness journey!
 
-Currently, two official plugins are available:
+##Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 🎯 **Real-time Pose Detection**
+- **MediaPipe Integration**: Advanced computer vision for accurate pose recognition
+- **Live Feedback**: Real-time pose matching with visual indicators
+- **33 Landmark Detection**: Precise body tracking using Google's state-of-the-art ML models
+- **Webcam Integration**: Seamless camera access for pose analysis
 
-## Expanding the ESLint configuration
+### 🎮 **Gamified Experience**
+- **Progressive Levels**: 4 challenging yoga poses across multiple difficulty levels
+- **Scoring System**: Earn points based on pose accuracy and hold duration
+- **Achievement Tracking**: Visual progress indicators and completion status
+- **Customizable Challenges**: Adjustable hold times (3-30 seconds)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 🎨 **Modern UI/UX**
+- **Responsive Design**: Works perfectly on desktop and mobile
+- **Real-time Animations**: Smooth progress bars and visual feedback
+- **Dark Mode Ready**: Modern design with gradient overlays
+- **Accessibility**: Screen reader friendly with proper ARIA labels
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** (v18+ recommended)
+- **npm** or **yarn**
+- **Webcam access** (for pose detection)
+- **Payman Account** (for crypto rewards)
+
+### Installation
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/FlexPlex.git
+cd FlexPlex
+```
+
+2. **Install dependencies**
+```bash
+npm install
+```
+
+3. **Set up environment variables**
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your credentials:
+```env
+VITE_PAYMAN_CLIENT_ID=your_payman_client_id
+VITE_PAYMAN_CLIENT_SECRET=your_payman_client_secret
+```
+
+4. **Start the development server**
+```bash
+npm run dev
+```
+
+5. **Open your browser**
+Navigate to `http://localhost:5173` and start your yoga journey! 🧘‍♀️
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **React 19.1** - Modern UI framework with latest features
+- **Vite 6.3** - Lightning-fast build tool and dev server
+- **CSS3** - Custom styling with modern gradients and animations
+
+### Computer Vision
+- **MediaPipe Tasks Vision** - Google's ML framework for pose detection
+- **Canvas API** - Real-time landmark rendering and pose visualization
+- **WebRTC** - Webcam access and video processing
+
+### PaymanAI Integration
+- **Payman AI** - Secure payment infrastructure
+- **TypeScript SDK** - Type-safe payment processing
+- **TSD (Test Dollar)** - Test dollars for rewards
+
+### Development Tools
+- **ESLint** - Code linting and quality assurance
+- **Prettier** - Code formatting
+- **Vite Plugin React** - Hot reload and fast refresh
+
+
+## Acknowledgments
+
+- **Google MediaPipe Team** - For the incredible pose detection technology
+- **Payman AI** - For secure crypto payment infrastructure
+- **React Team** - For the amazing frontend framework
+- **Yoga Community** - For inspiration and pose references
+
+
+## 🌟 Star Us!
+
+If you find FlexPlex helpful, please consider giving us a star ⭐ on GitHub! It helps us grow and reach more yoga enthusiasts.
+
+---
+
+**Made with 💜 by Surabhi**
+
+*Namaste, and happy stretching! 🧘‍♀️✨*
