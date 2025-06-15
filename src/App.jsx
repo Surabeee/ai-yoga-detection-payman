@@ -6,12 +6,13 @@ import {
 } from "@mediapipe/tasks-vision";
 import PoseDisplay from "./PoseDisplay";
 import NameInput from "./components/nameInput";
-import { initializePaymanClient, processReward } from "./services/paymanService";
+import { 
+  initializePaymanClient, 
+  processReward, 
+  testPaymanConnection 
+} from "./services/paymanService";
 import "./styles/RewardButton.css";
 import "./App.css";
-
-// For production, use the actual Payman client initialization
-// import { initializePaymanClient, processReward } from "./services/paymanService";
 
 function App() {
   const videoRef = useRef(null);
@@ -78,12 +79,46 @@ function App() {
   const [allLevelsCompleted, setAllLevelsCompleted] = useState(false);
   const [isClaimingReward, setIsClaimingReward] = useState(false);
   const [rewardClaimed, setRewardClaimed] = useState(false);
+  // Track if any pose has been completed to enable reward button
+  const [anyPoseCompleted, setAnyPoseCompleted] = useState(false);
 
-  // Initialize Payman client (commented out for development)
-  useEffect(() => {
-    // In production, replace with actual client ID and secret
-    initializePaymanClient("your-client-id", "your-client-secret");
-  }, []);
+  // Initialize Payman client
+ useEffect(() => {
+  const initPayman = async () => {
+    try {
+      // Initialize with environment variables
+      console.log("Initializing Payman client...");
+      const result = await initializePaymanClient();
+      
+      if (!result) {
+        console.error("Failed to initialize Payman client. Check your environment variables.");
+        // Show an error message to the user
+        setAlertMessage("Warning: Reward system is not connected. Rewards may not be processed.");
+        setAlertType("");
+        setShowAlert(true);
+        setTimeout(() => setShowAlert(false), 5000);
+      } else {
+        console.log("Payman client initialization successful!");
+        
+        // Test the connection to make sure it's working
+        const testResult = await testPaymanConnection();
+        console.log("Payman connection test:", testResult);
+        
+        if (!testResult.success) {
+          console.error("Payman connection test failed:", testResult.message);
+          setAlertMessage("Warning: Reward system connection test failed.");
+          setAlertType("");
+          setShowAlert(true);
+          setTimeout(() => setShowAlert(false), 5000);
+        }
+      }
+    } catch (error) {
+      console.error("Error during Payman initialization:", error);
+    }
+  };
+  
+  initPayman();
+}, []);
 
   // Load the MediaPipe model
   useEffect(() => {
@@ -255,6 +290,9 @@ function App() {
 
             // Add points to score
             setScore((prev) => prev + pointsEarned);
+            
+            // Mark that at least one pose has been completed (for reward)
+            setAnyPoseCompleted(true);
 
             // Show completion alert with points
             setChallengeComplete(true);
@@ -289,6 +327,14 @@ function App() {
     currentPoseIndex,
   ]);
 
+  // Check if any pose is completed in the sequence
+  useEffect(() => {
+    const hasCompletedPose = sequence.some(pose => pose.completed);
+    if (hasCompletedPose) {
+      setAnyPoseCompleted(true);
+    }
+  }, [sequence]);
+
   // Check if all levels are completed when sequence or level changes
   useEffect(() => {
     // Check if all poses in the current level are completed
@@ -296,9 +342,18 @@ function App() {
     
     // If we've completed level 4 and all poses are done, mark all levels as completed
     if (level >= 4 && allPosesInSequenceCompleted && !allLevelsCompleted) {
+      console.log("All levels completed! Enabling reward button.");
       setAllLevelsCompleted(true);
     }
   }, [sequence, level, allLevelsCompleted]);
+  
+  // Additional check when a challenge is completed
+  useEffect(() => {
+    if (challengeComplete && level >= 4 && currentPoseIndex === sequence.length - 1) {
+      console.log("Final pose of final level completed!");
+      setAllLevelsCompleted(true);
+    }
+  }, [challengeComplete, level, currentPoseIndex, sequence.length]);
 
   // Process video frames
   useEffect(() => {
@@ -461,14 +516,35 @@ function App() {
   };
 
   // Claim reward handler
-  const handleClaimReward = async () => {
-  if (isClaimingReward || rewardClaimed || !allLevelsCompleted) return;
+  // Claim reward handler
+const handleClaimReward = async () => {
+  if (isClaimingReward || rewardClaimed || !anyPoseCompleted) {
+    console.log("Cannot claim reward:", 
+      isClaimingReward ? "Already processing" : 
+      rewardClaimed ? "Already claimed" : 
+      "No pose completed yet");
+    return;
+  }
   
+  console.log("Starting reward claim process for user:", userName);
   setIsClaimingReward(true);
   
   try {
-    // Use the real implementation to process the reward
+    // Verify connection first
+    try {
+      const connectionTest = await testPaymanConnection();
+      if (!connectionTest.success) {
+        throw new Error("Payman connection failed: " + connectionTest.message);
+      }
+      console.log("Connection verified, processing reward...");
+    } catch (connectionError) {
+      console.warn("Connection test failed, but proceeding anyway:", connectionError);
+      // Continue with the reward process even if the test fails
+    }
+    
+    // Process the reward with increased timeout
     const result = await processReward(userName, 30);
+    console.log("Reward processing result:", result);
     
     if (result.success) {
       setRewardClaimed(true);
@@ -477,6 +553,7 @@ function App() {
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 5000);
     } else {
+      console.error("Failed to process reward:", result.message);
       setAlertMessage(`Failed to process reward: ${result.message}`);
       setAlertType("");
       setShowAlert(true);
@@ -510,6 +587,7 @@ function App() {
     setChallengeComplete(false);
     setHoldTime(0);
     setTimerActive(false);
+    setAnyPoseCompleted(false);
     
     // Don't reset reward claimed status
     // This way users can't claim rewards repeatedly
@@ -533,7 +611,9 @@ function App() {
       setCurrentPoseIndex(currentPoseIndex + 1);
     } else {
       // Complete the level if at the end of the sequence
-      setLevel(level + 1);
+      const newLevel = level + 1;
+      setLevel(newLevel);
+      console.log(`Level ${level} completed! Moving to level ${newLevel}`);
 
       // Reset the sequence for the next level
       setSequence((prev) =>
@@ -547,6 +627,12 @@ function App() {
 
       // Start from the first pose of the new level
       setCurrentPoseIndex(0);
+
+      // Check if we completed the final level
+      if (level >= 3) { // Level 4 is being completed
+        console.log("Final level completed!");
+        setAllLevelsCompleted(true);
+      }
 
       // Show level completion message
       setAlertMessage(`Level ${level} Complete! All poses mastered!`);
@@ -596,6 +682,7 @@ function App() {
         isClaimingReward={isClaimingReward}
         rewardClaimed={rewardClaimed}
         handleClaimReward={handleClaimReward}
+        anyPoseCompleted={anyPoseCompleted}
       />
     </>
   );

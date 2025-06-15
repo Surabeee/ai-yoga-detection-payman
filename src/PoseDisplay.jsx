@@ -26,6 +26,7 @@ const PoseDisplay = ({
   isClaimingReward,
   rewardClaimed,
   handleClaimReward,
+  anyPoseCompleted,
 }) => {
   return (
     <div className="container">
@@ -104,10 +105,10 @@ const PoseDisplay = ({
           </button>
         )}
         
-        {/* Reward button - shows up when all levels are completed */}
+        {/* Reward button - always visible but disabled until any pose is completed */}
         <button
           onClick={handleClaimReward}
-          disabled={isClaimingReward || rewardClaimed || !allLevelsCompleted}
+          disabled={isClaimingReward || rewardClaimed || !anyPoseCompleted}
           className={`claim-reward-button ${isClaimingReward ? 'loading' : ''} ${rewardClaimed ? 'claimed' : ''}`}
         >
           {rewardClaimed ? 'Reward Claimed' : isClaimingReward ? ' ' : 'Claim Reward'}
