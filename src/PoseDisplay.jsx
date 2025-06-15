@@ -1,6 +1,8 @@
 import React from "react";
+import "../src/styles/RewardButton.css";
 
 const PoseDisplay = ({
+  userName,
   level,
   score,
   currentPoseIndex,
@@ -10,6 +12,8 @@ const PoseDisplay = ({
   challengeComplete,
   isPoseMatched,
   showAlert,
+  alertMessage,
+  alertType,
   videoRef,
   canvasRef,
   imageRef,
@@ -18,12 +22,17 @@ const PoseDisplay = ({
   resetChallenge,
   moveToNextPose,
   goToPose,
+  allLevelsCompleted,
+  isClaimingReward,
+  rewardClaimed,
+  handleClaimReward,
 }) => {
   return (
     <div className="container">
       <div className="header">
         <h1 className="title">Yoga Pose Challenge</h1>
         <p style={{ margin: 0, fontSize: "1.2rem" }}>
+          {userName ? `Welcome, ${userName}! ` : ""}
           Master the poses, level up your practice
         </p>
       </div>
@@ -94,6 +103,15 @@ const PoseDisplay = ({
             Next Pose
           </button>
         )}
+        
+        {/* Reward button - shows up when all levels are completed */}
+        <button
+          onClick={handleClaimReward}
+          disabled={isClaimingReward || rewardClaimed || !allLevelsCompleted}
+          className={`claim-reward-button ${isClaimingReward ? 'loading' : ''} ${rewardClaimed ? 'claimed' : ''}`}
+        >
+          {rewardClaimed ? 'Reward Claimed' : isClaimingReward ? ' ' : 'Claim Reward'}
+        </button>
       </div>
 
       {/* Timer progress bar */}
@@ -155,21 +173,8 @@ const PoseDisplay = ({
 
       {/* Alert Message */}
       {showAlert && (
-        <div className="alert-container">
-          {challengeComplete ? (
-            <>
-              Challenge Complete!
-              <br />+
-              {Math.round(
-                sequence[currentPoseIndex].points *
-                  sequence[currentPoseIndex].difficultyMultiplier *
-                  (targetTime / 5)
-              )}{" "}
-              Points
-            </>
-          ) : (
-            <>Level {level} Complete! All poses mastered!</>
-          )}
+        <div className={`alert-container ${alertType}`}>
+          <div dangerouslySetInnerHTML={{ __html: alertMessage }} />
         </div>
       )}
     </div>

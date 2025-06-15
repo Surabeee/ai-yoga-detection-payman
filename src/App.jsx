@@ -5,7 +5,13 @@ import {
   DrawingUtils,
 } from "@mediapipe/tasks-vision";
 import PoseDisplay from "./PoseDisplay";
+import NameInput from "./components/nameInput";
+import { initializePaymanClient, processReward } from "./services/paymanService";
+import "./styles/RewardButton.css";
 import "./App.css";
+
+// For production, use the actual Payman client initialization
+// import { initializePaymanClient, processReward } from "./services/paymanService";
 
 function App() {
   const videoRef = useRef(null);
@@ -16,6 +22,8 @@ function App() {
   const [referencePose, setReferencePose] = useState(null);
   const [isPoseMatched, setIsPoseMatched] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState(""); // For styling different alert types
   const drawingUtilsRef = useRef(null);
   const imageDrawingUtilsRef = useRef(null);
 
@@ -64,6 +72,19 @@ function App() {
     },
   ]);
 
+  // New state for Payman integration
+  const [userName, setUserName] = useState("");
+  const [showNameInput, setShowNameInput] = useState(true);
+  const [allLevelsCompleted, setAllLevelsCompleted] = useState(false);
+  const [isClaimingReward, setIsClaimingReward] = useState(false);
+  const [rewardClaimed, setRewardClaimed] = useState(false);
+
+  // Initialize Payman client (commented out for development)
+  useEffect(() => {
+    // In production, replace with actual client ID and secret
+    initializePaymanClient("your-client-id", "your-client-secret");
+  }, []);
+
   // Load the MediaPipe model
   useEffect(() => {
     const loadModel = async () => {
@@ -90,6 +111,9 @@ function App() {
 
   // Start the webcam
   useEffect(() => {
+    // Only start camera if user has entered their name
+    if (!userName) return;
+    
     const startCamera = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -112,7 +136,7 @@ function App() {
         tracks.forEach((track) => track.stop());
       }
     };
-  }, []);
+  }, [userName]);
 
   // Initialize canvases once elements are ready
   useEffect(() => {
@@ -234,6 +258,8 @@ function App() {
 
             // Show completion alert with points
             setChallengeComplete(true);
+            setAlertMessage(`Challenge Complete!<br>+${pointsEarned} Points`);
+            setAlertType("");
             setShowAlert(true);
             setTimeout(() => setShowAlert(false), 3000);
 
@@ -262,6 +288,17 @@ function App() {
     sequence,
     currentPoseIndex,
   ]);
+
+  // Check if all levels are completed when sequence or level changes
+  useEffect(() => {
+    // Check if all poses in the current level are completed
+    const allPosesInSequenceCompleted = sequence.every(pose => pose.completed);
+    
+    // If we've completed level 4 and all poses are done, mark all levels as completed
+    if (level >= 4 && allPosesInSequenceCompleted && !allLevelsCompleted) {
+      setAllLevelsCompleted(true);
+    }
+  }, [sequence, level, allLevelsCompleted]);
 
   // Process video frames
   useEffect(() => {
@@ -417,6 +454,45 @@ function App() {
     return similarity; // 0 (no match) to 1 (perfect)
   }
 
+  // Handle name submission
+  const handleNameSubmit = (name) => {
+    setUserName(name);
+    setShowNameInput(false);
+  };
+
+  // Claim reward handler
+  const handleClaimReward = async () => {
+  if (isClaimingReward || rewardClaimed || !allLevelsCompleted) return;
+  
+  setIsClaimingReward(true);
+  
+  try {
+    // Use the real implementation to process the reward
+    const result = await processReward(userName, 30);
+    
+    if (result.success) {
+      setRewardClaimed(true);
+      setAlertMessage(`Congratulations ${userName}!<br>You've earned 30 TSD for completing the yoga challenge!`);
+      setAlertType("reward-success");
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 5000);
+    } else {
+      setAlertMessage(`Failed to process reward: ${result.message}`);
+      setAlertType("");
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 3000);
+    }
+  } catch (error) {
+    console.error("Error claiming reward:", error);
+    setAlertMessage(`Error: ${error.message}`);
+    setAlertType("");
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 3000);
+  } finally {
+    setIsClaimingReward(false);
+  }
+};
+
   // Reset the current challenge
   const resetChallenge = () => {
     // Reset score
@@ -434,6 +510,9 @@ function App() {
     setChallengeComplete(false);
     setHoldTime(0);
     setTimerActive(false);
+    
+    // Don't reset reward claimed status
+    // This way users can't claim rewards repeatedly
   };
 
   // Change the target time
@@ -470,6 +549,8 @@ function App() {
       setCurrentPoseIndex(0);
 
       // Show level completion message
+      setAlertMessage(`Level ${level} Complete! All poses mastered!`);
+      setAlertType("");
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 3000);
     }
@@ -487,25 +568,36 @@ function App() {
   };
 
   return (
-    <PoseDisplay
-      level={level}
-      score={score}
-      currentPoseIndex={currentPoseIndex}
-      sequence={sequence}
-      targetTime={targetTime}
-      holdTime={holdTime}
-      challengeComplete={challengeComplete}
-      isPoseMatched={isPoseMatched}
-      showAlert={showAlert}
-      videoRef={videoRef}
-      canvasRef={canvasRef}
-      imageRef={imageRef}
-      imageCanvasRef={imageCanvasRef}
-      handleTargetTimeChange={handleTargetTimeChange}
-      resetChallenge={resetChallenge}
-      moveToNextPose={moveToNextPose}
-      goToPose={goToPose}
-    />
+    <>
+      {showNameInput && <NameInput onSubmit={handleNameSubmit} />}
+      
+      <PoseDisplay
+        userName={userName}
+        level={level}
+        score={score}
+        currentPoseIndex={currentPoseIndex}
+        sequence={sequence}
+        targetTime={targetTime}
+        holdTime={holdTime}
+        challengeComplete={challengeComplete}
+        isPoseMatched={isPoseMatched}
+        showAlert={showAlert}
+        alertMessage={alertMessage}
+        alertType={alertType}
+        videoRef={videoRef}
+        canvasRef={canvasRef}
+        imageRef={imageRef}
+        imageCanvasRef={imageCanvasRef}
+        handleTargetTimeChange={handleTargetTimeChange}
+        resetChallenge={resetChallenge}
+        moveToNextPose={moveToNextPose}
+        goToPose={goToPose}
+        allLevelsCompleted={allLevelsCompleted}
+        isClaimingReward={isClaimingReward}
+        rewardClaimed={rewardClaimed}
+        handleClaimReward={handleClaimReward}
+      />
+    </>
   );
 }
 

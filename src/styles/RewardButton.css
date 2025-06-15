@@ -1,0 +1,77 @@
+/* Reward Button Styles */
+.claim-reward-button {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  padding: 10px 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.claim-reward-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.claim-reward-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Disabled/blurred state */
+.claim-reward-button:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  filter: blur(1px);
+  opacity: 0.7;
+}
+
+/* Disabled but completed state */
+.claim-reward-button.claimed:disabled {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  filter: none;
+  opacity: 0.8;
+}
+
+/* Loading state */
+.claim-reward-button.loading {
+  pointer-events: none;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.claim-reward-button.loading:after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  border: 3px solid transparent;
+  border-top-color: white;
+  border-radius: 50%;
+  animation: button-loading-spinner 1s ease infinite;
+}
+
+@keyframes button-loading-spinner {
+  from {
+    transform: rotate(0turn);
+  }
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* Success message styles */
+.reward-success {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
